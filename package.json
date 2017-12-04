@@ -1,0 +1,35 @@
+{
+  "name": "twinepm",
+  "version": "0.0.1",
+  "description": "The command-line interface for the Twine Package Manager.",
+  "main": "dist/index.js",
+  "scripts": {
+    "test": "jest"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/furkleindustries/twinepm-cli.git"
+  },
+  "keywords": [
+    "package",
+    "manager",
+    "twine",
+    "twinepm"
+  ],
+  "author": "furkle",
+  "license": "GPL-3.0",
+  "bugs": {
+    "url": "https://github.com/furkleindustries/twinepm-cli/issues"
+  },
+  "homepage": "https://github.com/furkleindustries/twinepm-cli#readme",
+  "devDependencies": {
+    "awesome-typescript-loader": "^3.4.1",
+    "babel-cli": "^6.26.0",
+    "babel-env": "^2.4.1",
+    "babel-jest": "^21.2.0",
+    "babel-plugin-transform-es2015-modules-commonjs": "^6.26.0",
+    "ts-jest": "^21.2.4",
+    "typescript": "^2.6.2",
+    "webpack": "^3.9.1"
+  }
+}
