@@ -1,13 +1,13 @@
 {
   "compilerOptions": {
-    "outDir": "./dist/esnext.node/",
+    "outDir": "./dist/es6.node/",
     "lib": [ "esnext" ],
     "jsx": "preserve",
     "sourceMap": false,
     "noImplicitAny": true,
-    "module": "esnext",
+    "module": "umd",
     "moduleResolution": "node",
-    "target": "esnext",
+    "target": "es6",
     "noUnusedLocals": true,
     "noUnusedParameters": true,
     "removeComments": true,
