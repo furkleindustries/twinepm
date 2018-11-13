@@ -1,3 +1,3 @@
 export * from './apiUrl';
-export * from './AssetTypes';
+export * from './TwinePmAssetTypes';
 export * from './fetchAsset';

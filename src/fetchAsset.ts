@@ -2,15 +2,15 @@ import {
   apiUrl,
 } from './apiUrl';
 import {
-  TwinePMAssetTypes,
-} from './TwinePMAssetTypes';
+  TwinePmAssetTypes,
+} from './TwinePmAssetTypes';
 
 import fetch from 'node-fetch';
 
-export const fetchAsset = (type: TwinePMAssetTypes, id: number) => {
+export const fetchAsset = (type: TwinePmAssetTypes, id: number) => {
   return new Promise((resolve) => {
     fetch(`${apiUrl}/${type}s/${id}`, {}).then((val) => {
-      return val.json().then((data) => resolve(data))
+      return val.json().then((data) => resolve(data));
     });
   });
 };
