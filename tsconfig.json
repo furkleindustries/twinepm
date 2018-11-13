@@ -1,20 +1,14 @@
 {
   "compilerOptions": {
-    "outDir": "./dist/esnext.node/",
-    "lib": [ "esnext" ],
-    "jsx": "preserve",
-    "sourceMap": false,
+    "outDir": "./dist/",
     "noImplicitAny": true,
     "module": "esnext",
-    "moduleResolution": "node",
-    "target": "esnext",
-    "noUnusedLocals": true,
-    "noUnusedParameters": true,
-    "removeComments": true,
-    "preserveConstEnums": true,
-    "strictNullChecks": true
-  },
-
-  "exclude": [ "./src/**/*.test.*" ],
-  "include": [ "./src/**/*" ]
+    "target": "es5",
+    "jsx": "react",
+    "allowJs": true,
+    "lib": [
+      "dom",
+      "esnext"
+    ]
+  }
 }
