@@ -1,6 +1,6 @@
 {
   "name": "twinepm",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "The module and CLI tools for the Twine Package Manager.",
   "main": "dist/index.js",
   "bin": "dist/index.js",
