@@ -1,6 +1,6 @@
 {
   "name": "twinepm",
-  "version": "0.1.2",
+  "version": "0.2.0",
   "description": "The module and CLI tools for the Twine Package Manager.",
   "main": "dist/index.js",
   "bin": "dist/index.js",
@@ -10,7 +10,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/furkleindustries/twinepm-cli.git"
+    "url": "git+https://github.com/furkleindustries/twinepm.git"
   },
   "keywords": [
     "package manager",
@@ -21,9 +21,9 @@
   "author": "furkle",
   "license": "GPL-3.0",
   "bugs": {
-    "url": "https://github.com/furkleindustries/twinepm-cli/issues"
+    "url": "https://github.com/furkleindustries/twinepm/issues"
   },
-  "homepage": "https://github.com/furkleindustries/twinepm-cli#readme",
+  "homepage": "https://github.com/furkleindustries/twinepm#readme",
   "dependencies": {
     "commander": "^2.19.0",
     "node-fetch": "^2.2.1"

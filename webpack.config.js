@@ -33,10 +33,6 @@ const nodeConfig = Object.assign({}, baseConfig, {
     path: path.resolve(__dirname, 'dist', 'node'),
     libraryTarget: 'umd',
   },
-
-  plugins: [
-    new webpack.IgnorePlugin(/node_fetch/),
-  ]
 });
 
 const browserConfig = Object.assign({}, baseConfig, {
@@ -52,6 +48,10 @@ const browserConfig = Object.assign({}, baseConfig, {
     libraryTarget: 'umd',
     globalObject: 'this',
   },
+
+  plugins: [
+    new webpack.IgnorePlugin(/node_fetch/),
+  ],
 });
 
 const cliConfig = Object.assign({}, baseConfig, {
@@ -70,6 +70,6 @@ const cliConfig = Object.assign({}, baseConfig, {
 
 module.exports = [
   nodeConfig,
-  //browserConfig,
+  browserConfig,
   //cliConfig,
 ];
