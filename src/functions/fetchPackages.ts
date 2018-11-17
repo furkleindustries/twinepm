@@ -107,10 +107,10 @@ export const fetchPackages = (
                 fixDates(pkg, options))
               );
             } else {
-              fixDates(data as IFetchedPackage, options)
+              fixDates(data as IFetchedPackage, options);
             }
 
-            resolve(data)
+            resolve(data);
           });
         } catch (e) {
           reject('There was an unknown error deserializing the response, ' +

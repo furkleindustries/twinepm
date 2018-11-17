@@ -5,9 +5,6 @@ import {
   IFetchedProfile,
 } from '../interfaces/IFetchedProfile';
 import {
-  IFetchedVersion,
-} from '../interfaces/IFetchedVersion';
-import {
   IFetchOptions,
 } from '../interfaces/IFetchOptions';
 import {

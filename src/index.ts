@@ -9,8 +9,11 @@ export * from './functions/fetchPackages';
 export * from './functions/searchPackages';
 export * from './functions/fetchProfiles';
 export * from './functions/fetchVersions';
-export * from './interfaces/IFetchedPackage'
+export * from './interfaces/IFetchedPackage';
+export * from './interfaces/IFetchedProfile';
 export * from './interfaces/IFetchedVersion';
 export * from './interfaces/IFetchOptions';
 export * from './interfaces/IFetchPackageOptions';
+export * from './interfaces/IFetchProfileOptions';
+export * from './interfaces/IFetchVersionOptions';
 export * from './interfaces/ISearchPackageOptions';
