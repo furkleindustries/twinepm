@@ -4,4 +4,5 @@ import {
 
 export interface IFetchVersionOptions {
   orderBy?: VersionOrderByFields;
+  packageId?: string;
 }

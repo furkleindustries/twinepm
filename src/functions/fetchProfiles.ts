@@ -10,6 +10,12 @@ import {
 import {
   IFetchProfileOptions,
 } from '../interfaces/IFetchProfileOptions';
+import {
+  IPaginatedResponse,
+} from '../interfaces/IPaginatedResponse';
+import {
+  OrderDirections,
+} from '../enums/OrderDirections';
 
 import nodeFetch from 'node-fetch';
 
@@ -26,10 +32,6 @@ import nodeFetch from 'node-fetch';
  * @param [options] A group of optional instructions to modify which profiles
  * are returned.
  * 
- * @param [options.cursor] Returns results only including and after the profile
- * with this ID in any particular query set. This option is ignored if `id` is
- * not `*`.
- * 
  * @param [options.orderBy] A set of fields that can be used for ordering the
  * returned profiles. This option is ignored if `id` is not `*`.
  * 
@@ -42,27 +44,23 @@ import nodeFetch from 'node-fetch';
  * */
 export const fetchProfiles = (
   id: number | '*',
-  options?: IFetchProfileOptions & IFetchOptions
-): Promise<IFetchedProfile | IFetchedProfile[]> => {
+  options?: IFetchProfileOptions & IFetchOptions,
+): Promise<IFetchedProfile | IPaginatedResponse<IFetchedProfile>> => {
   /* If format=json is not provided, an HTML response will be emitted by the
    * server. This is not desirable for a Node module API. */
   let args = 'format=json';
   if (options) {
     if (id === '*') {
-      if (options.cursor) {
-        args += `&cursor=${options.cursor}`;
-      }
-
       if (options.orderBy) {
-        args += `&orderBy=${options.orderBy}`;
-      }
+        if (options.orderDirection === OrderDirections.Ascending) {
+          args += `&ordering=-${options.orderBy}`;
+        }
 
-      if (options.orderDirection) {
-        args += `&orderDirection=${options.orderDirection}`;
+        args += `&ordering=${options.orderBy}`;
       }
 
       if (options.quantity) {
-        args += `&quantity=${options.quantity}`;
+        args += `&page_size=${options.quantity}`;
       }
     }
   }
@@ -87,9 +85,11 @@ export const fetchProfiles = (
     (prom as Promise<Response>).then((response) => {
       if (response.status.toString()[0] === '2') {
         try {
-          response.json().then((data: IFetchedProfile | IFetchedProfile[]) => {
+          response.json().then((data: IFetchedProfile | IPaginatedResponse<IFetchedProfile>) => {
             if (id === '*') {
-              (data as IFetchedProfile[]).forEach((prof) => fixDates(prof));
+              (data as IPaginatedResponse<IFetchedProfile>).results.forEach((prof) => (
+                fixDates(prof)
+              ));
             } else {
               fixDates(data as IFetchedProfile);
             }

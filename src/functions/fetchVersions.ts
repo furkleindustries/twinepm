@@ -10,6 +10,12 @@ import {
 import {
   IFetchVersionOptions,
 } from '../interfaces/IFetchVersionOptions';
+import {
+  IPaginatedResponse,
+} from '../interfaces/IPaginatedResponse';
+import {
+  OrderDirections,
+} from '../enums/OrderDirections';
 
 import nodeFetch from 'node-fetch';
 
@@ -19,16 +25,15 @@ import nodeFetch from 'node-fetch';
  * 
  * @async
  * 
- * @param userId This variable input can either be the numerical ID, which
- * returns a single version, or the `all` star, `*`, which returns up to the
- * server max (which is yet to be canonicalized).
+ * @param id This variable input can either be the numerical ID, which
+ * returns a single version, the `all` star, `*`, which returns up to the
+ * server max (which is yet to be canonicalized), or a combination of the
+ * desired version's semver version identifier and the packageId option.
+ * An error will be thrown by the server if id is provided as a semver
+ * identifier but no packageId is provided.
  * 
  * @param [options] A group of optional instructions to modify which versions
  * are returned.
- * 
- * @param [options.cursor] Returns results only including and after the version
- * with this ID in any particular query set. This option is ignored if `id` is
- * not `*`.
  * 
  * @param [options.orderBy] A set of fields that can be used for ordering the
  * returned versions. This option is ignored if `id` is not `*`.
@@ -43,26 +48,26 @@ import nodeFetch from 'node-fetch';
 export const fetchVersions = (
   id: string | number | '*',
   options?: IFetchVersionOptions & IFetchOptions
-): Promise<IFetchedVersion | IFetchedVersion[]> => {
+): Promise<IFetchedVersion | IPaginatedResponse<IFetchedVersion>> => {
   /* If format=json is not provided, an HTML response will be emitted by the
    * server. This is not desirable for a Node module API. */
   let args = 'format=json';
   if (options) {
     if (id === '*') {
-      if (options.cursor) {
-        args += `&cursor=${options.cursor}`;
-      }
-
       if (options.orderBy) {
-        args += `&orderBy=${options.orderBy}`;
-      }
+        if (options.orderDirection === OrderDirections.Descending) {
+          args += `&orderBy=${options.orderBy}`;
+        }
 
-      if (options.orderDirection) {
-        args += `&orderDirection=${options.orderDirection}`;
+        args += `&orderBy=-${options.orderBy}`;
       }
 
       if (options.quantity) {
         args += `&quantity=${options.quantity}`;
+      }
+    } else {
+      if (options.packageId) {
+        args += `&packageId=${options.packageId}`;
       }
     }
   }
@@ -87,9 +92,11 @@ export const fetchVersions = (
     (prom as Promise<Response>).then((response) => {
       if (response.status.toString()[0] === '2') {
         try {
-          response.json().then((data: IFetchedVersion | IFetchedVersion[]) => {
+          response.json().then((data: IFetchedVersion | IPaginatedResponse<IFetchedVersion>) => {
             if (id === '*') {
-              (data as IFetchedVersion[]).forEach((prof) => fixDates(prof));
+              (data as IPaginatedResponse<IFetchedVersion>).results.forEach((prof) => (
+                fixDates(prof)
+              ));
             } else {
               fixDates(data as IFetchedVersion);
             }
@@ -115,8 +122,8 @@ export const fetchVersions = (
 };
 
 const fixDates = (
-  pkg: IFetchedVersion,
+  version: IFetchedVersion,
 ): IFetchedVersion => {
-  pkg.date_created = new Date(pkg.date_created);
-  return pkg;
+  version.date_created = new Date(version.date_created);
+  return version;
 };

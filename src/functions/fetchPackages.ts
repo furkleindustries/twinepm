@@ -13,6 +13,12 @@ import {
 import {
   IFetchPackageOptions,
 } from '../interfaces/IFetchPackageOptions';
+import {
+  IPaginatedResponse,
+} from '../interfaces/IPaginatedResponse';
+import {
+  OrderDirections,
+} from '../enums/OrderDirections';
 
 import nodeFetch from 'node-fetch';
 
@@ -35,10 +41,6 @@ import nodeFetch from 'node-fetch';
  * `default` may also be provided, and will provide the default version. This
  * option is ignored if `nameOrId` is `*`.
  * 
- * @param [options.cursor] Returns results only including and after the package
- * with this ID in any particular query set. This option is ignored if
- * `nameOrId` is not `*`.
- * 
  * @param [options.orderBy] A set of fields that can be used for ordering the
  * returned packages. This option is ignored if `nameOrId` is not `*`.
  * 
@@ -51,24 +53,21 @@ import nodeFetch from 'node-fetch';
  * */
 export const fetchPackages = (
   nameOrId: string | number | '*',
-  options?: IFetchPackageOptions & IFetchOptions
-): Promise<IFetchedPackage | IFetchedPackage[]> => {
+  options?: IFetchPackageOptions & IFetchOptions,
+): Promise<IFetchedPackage | IPaginatedResponse<IFetchedPackage>> => {
   /* If format=json is not provided, an HTML response will be emitted by the
    * server. This is not desirable for a Node module API. */
   let args = 'format=json';
   if (options) {
     if (nameOrId === '*') {
-      if (options.cursor) {
-        args += `&cursor=${options.cursor}`;
-      }
-
       if (options.orderBy) {
-        args += `&orderBy=${options.orderBy}`;
+        if (options.orderDirection === OrderDirections.Descending) {
+          args += `&orderBy=${options.orderBy}`;
+        }
+
+        args += `&orderDirection=-${options.orderDirection}`;
       }
 
-      if (options.orderDirection) {
-        args += `&orderDirection=${options.orderDirection}`;
-      }
 
       if (options.quantity) {
         args += `&quantity=${options.quantity}`;
@@ -76,14 +75,13 @@ export const fetchPackages = (
     } else {
       if (options.includeVersions) {
         const versionsStr = options.includeVersions.join(',');
-        args += `&includeVersions=${encodeURIComponent(versionsStr)}`;
+        args += `&include_versions=${encodeURIComponent(versionsStr)}`;
       }
     }
   }
 
   /* e.g. https://foo.com/packages/coolPackage?...args */
   const urlStr = `${apiUrl}/packages/${nameOrId === '*' ? '' : nameOrId}?${args}`;
-  console.log(urlStr);
   const fetchArgs = [
     urlStr,
     {},
@@ -101,9 +99,9 @@ export const fetchPackages = (
     (prom as Promise<Response>).then((response) => {
       if (response.status.toString()[0] === '2') {
         try {
-          response.json().then((data: IFetchedPackage | IFetchedPackage[]) => {
+          response.json().then((data: IFetchedPackage | IPaginatedResponse<IFetchedPackage>) => {
             if (nameOrId === '*') {
-              (data as IFetchedPackage[]).forEach((pkg) => (
+              (data as IPaginatedResponse<IFetchedPackage>).results.forEach((pkg) => (
                 fixDates(pkg, options))
               );
             } else {
