@@ -3,6 +3,6 @@ import {
 } from '../enums/VersionOrderByFields';
 
 export interface IFetchVersionOptions {
-  orderBy?: VersionOrderByFields;
-  packageId?: string;
+  readonly orderBy?: VersionOrderByFields;
+  readonly packageId?: string;
 }

@@ -14,6 +14,13 @@ import {
   IFetchedVersion,
 } from '../interfaces/IFetchedVersion';
 
+/**
+ * Normalizes the returned package (and any contained version) date values
+ * into Date objects.
+ * 
+ * @param pkg The fetched package object. 
+ * @param options The options provided to fetch the package.
+ */
 export const fixPackageDates = (
   {
     date_created,

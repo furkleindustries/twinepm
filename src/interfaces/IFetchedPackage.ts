@@ -3,16 +3,16 @@ import {
 } from './IFetchedVersion';
 
 export interface IFetchedPackage {
-  id: number;
-  name: string;
-  author: number;
-  owner: number;
-  description: string;
-  default_version: string | null;
-  versions: string[] | IFetchedVersion[];
-  date_created: Date;
-  date_modified: Date;
-  keywords: string[];
-  downloads: number;
-  tag: string;
+  readonly id: number;
+  readonly name: string;
+  readonly author: number;
+  readonly owner: number;
+  readonly description: string;
+  readonly default_version: string | null;
+  readonly versions: string[] | IFetchedVersion[];
+  readonly date_created: Date;
+  readonly date_modified: Date;
+  readonly keywords: string[];
+  readonly downloads: number;
+  readonly tag: string;
 }

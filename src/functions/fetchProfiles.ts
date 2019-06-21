@@ -22,43 +22,49 @@ import {
 import {
   OrderDirections,
 } from '../enums/OrderDirections';
+import {
+  SearchSymbols,
+} from '../enums/SearchSymbols';
 
 type Paginated = IPaginatedResponse<IFetchedProfile>;
+type ResponsePromise = Promise<Response>;
 
 import nodeFetch from 'node-fetch';
 
 /**
- * @description A function used to abstract fetching one or more profiles from
+ * A function used to abstract fetching one or more profiles from
  * the server.
  * 
  * @async
  * 
  * @param userId This variable input can either be the numerical ID, which
- * returns a single profile, or the `all` star, `*`, which returns up to the
- * server max (which is yet to be canonicalized).
+ * returns a single profile, or `SearchSymbols.All`, which returns up to the
+ * server max. The server max is yet to be canonicalized.
  * 
- * @param [options] A group of optional instructions to modify which profiles
+ * @param options A group of optional instructions to modify which profiles
  * are returned.
  * 
- * @param [options.orderBy] A set of fields that can be used for ordering the
- * returned profiles. This option is ignored if `id` is not `*`.
+ * @param options.orderBy A set of fields that can be used for ordering the
+ * returned profiles. This option is ignored if `id` is not
+ * `SearchSymbols.All`.
  * 
- * @param [options.orderDirection] A direction in which the returned profiles
- * are ordered. This option is ignored if `id` is not `*`.
+ * @param options.orderDirection A direction in which the returned profiles
+ * are ordered. This option is ignored if `id` is not `SearchSymbols.All`.
  * 
- * @param [options.quantity] The number of results to return. There is a server
+ * @param options.quantity The number of results to return. There is a server
  * maximum, which has not been canonicalized yet, beyond which a higher
- * quantity is disregarded. This option is ignored if `id` is not `*`. 
+ * quantity is disregarded. This option is ignored if `id` is not
+ * `SearchSymbols.All`.
  */
 export const fetchProfiles = (
-  id: number | '*',
+  id: number | SearchSymbols.All,
   options?: IFetchProfileOptions & IFetchOptions,
 ): Promise<IFetchedProfile | Paginated> => {
   /* If format=json is not provided, an HTML response will be emitted by the
    * server. This is not desirable for a Node module API. */
   let args = 'format=json';
   if (options) {
-    if (id === '*') {
+    if (id === SearchSymbols.All) {
       if (options.orderBy) {
         if (options.orderDirection === OrderDirections.Ascending) {
           args += `&ordering=-${options.orderBy}`;
@@ -74,9 +80,11 @@ export const fetchProfiles = (
   }
 
   /* e.g. https://foo.com/profiles/1?...args */
-  const urlStr = `${apiUrl}/profiles/${id === '*' ? '' : id}?${args}`;
+  const urlStr = `${apiUrl}/profiles/${id === SearchSymbols.All ?
+    '' :
+    id}?${args}`;
 
-  const fetchArgs = [
+  const fetchArgs: [ string, object ] = [
     urlStr,
     {},
   ];
@@ -84,13 +92,7 @@ export const fetchProfiles = (
   return new Promise((resolve, reject) => {
     let prom;
     /* Use nodeFetch on the server and the built-in fetch in the browser. */
-    if (isNode()) {
-      prom = nodeFetch.apply(null, fetchArgs);
-    } else {
-      prom = fetch.apply(null, fetchArgs);
-    }
-
-    (prom as Promise<Response>).then(({
+    ((isNode() ? nodeFetch : fetch)(fetchArgs[0], fetchArgs[1]) as ResponsePromise).then(({
       json,
       status,
     }) => {
@@ -99,13 +101,13 @@ export const fetchProfiles = (
           json().then((data: IFetchedProfile | Paginated) => {
             let fixedData: IFetchedProfile | Paginated = {
               ...data,
-              ...(id === '*' ?
+              ...(id === SearchSymbols.All ?
                 { results: (data as Paginated).results.map(fixProfileDates) } :
                 {}
               ),
             };
 
-            if (id !== '*') {
+            if (id !== SearchSymbols.All) {
               fixedData = fixProfileDates(fixedData as IFetchedProfile);
             }
 

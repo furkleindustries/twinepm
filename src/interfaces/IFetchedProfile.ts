@@ -6,13 +6,13 @@ import {
 } from '../enums/TimeStyles';
 
 export interface IFetchedProfile {
-  user_id: number;
-  name: string;
-  description: string;
-  email: string;
-  email_visible: boolean;
-  date_created: Date;
-  date_style: DateStyles;
-  time_style: TimeStyles;
-  packages: string[];
+  readonly user_id: number;
+  readonly name: string;
+  readonly description: string;
+  readonly email: string;
+  readonly email_visible: boolean;
+  readonly date_created: Date;
+  readonly date_style: DateStyles;
+  readonly time_style: TimeStyles;
+  readonly packages: ReadonlyArray<string>;
 }

@@ -3,5 +3,5 @@ import {
 } from '../enums/ProfileOrderByFields';
 
 export interface IFetchProfileOptions {
-  orderBy?: ProfileOrderByFields;
+  readonly orderBy?: ProfileOrderByFields;
 }

@@ -1,3 +1,3 @@
 export interface ISearchPackageOptions {
-  quantity?: number;
+  readonly quantity?: number;
 }

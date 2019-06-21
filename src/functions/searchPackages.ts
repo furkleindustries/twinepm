@@ -10,6 +10,15 @@ import {
 
 import nodeFetch from 'node-fetch';
 
+type ResponsePromise = Promise<Response>;
+
+/**
+ * A simple API through which raw string queries may be passed to the server,
+ * and structured, normalized array of results are returned.
+ * 
+ * @param query The base query to be sent to the server and executed.
+ * @param options Options to affect the behavior of the server's response.
+ */
 export const searchPackages = (query: string, options?: ISearchPackageOptions) => {
   let args = `query=${encodeURIComponent(query)}&format=json`;
   if (options) {
@@ -21,34 +30,30 @@ export const searchPackages = (query: string, options?: ISearchPackageOptions) =
   /* e.g. https://foo.com/packages/search/coolPackage?...args */
   const urlStr = `${apiUrl}/packages/search/?${args}`;
 
-  const fetchArgs = [
+  const fetchArgs: [ string, object ] = [
     urlStr,
     {},
   ];
 
   return new Promise((resolve, reject) => {
-    let prom;
-    if (isNode()) {
-      prom = nodeFetch.apply(null, fetchArgs);
-    } else {
-      prom = fetch.apply(null, fetchArgs);
-    }
-
-    (prom as Promise<Response>).then(
-      (response) => {
-        if (response.status >= 200 && response.status < 300) {
+    ((isNode() ? nodeFetch : fetch)(fetchArgs[0], fetchArgs[1]) as ResponsePromise).then(
+      ({
+        json,
+        status,
+      }) => {
+        if (status >= 200 && status < 300) {
           try {
-            response.json().then(resolve);
+            json().then(resolve);
           } catch (e) {
             return reject('There was an unknown error deserializing the ' +
               'response, but the request succeeded.');
           }
         } else {
           try {
-            response.json().then(({ error }) => reject(error));
+            json().then(({ error }) => reject(error));
           } catch (err) {
             return reject('There was an unknown error. The server returned ' +
-              `a status of ${response.status}.\n${err}`);
+              `a status of ${status}.\n${err}`);
           }
         }
       },

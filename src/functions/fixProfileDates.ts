@@ -2,6 +2,11 @@ import {
   IFetchedProfile,
 } from '../interfaces/IFetchedProfile';
 
+/**
+ * Normalizes the date in the fetched profile into a JavaScript Date object.
+ * 
+ * @param profile The fetched profile object.
+ */
 export const fixProfileDates = (
   {
     date_created,

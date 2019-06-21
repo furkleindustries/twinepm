@@ -3,6 +3,6 @@ import {
 } from '../enums/OrderDirections';
 
 export interface IFetchOptions {
-  orderDirection?: OrderDirections;
-  quantity?: number;
+  readonly orderDirection?: OrderDirections;
+  readonly quantity?: number;
 }

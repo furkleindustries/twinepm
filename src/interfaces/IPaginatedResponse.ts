@@ -9,8 +9,8 @@ import {
 } from './IFetchedVersion';
 
 export interface IPaginatedResponse<T = IFetchedPackage | IFetchedProfile | IFetchedVersion> {
-  count: number;
-  previous: string;
-  next: string;
-  results: Array<T>;
+  readonly count: number;
+  readonly previous: string;
+  readonly next: string;
+  readonly results: ReadonlyArray<T>;
 }
