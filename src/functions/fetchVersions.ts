@@ -2,6 +2,9 @@ import {
   apiUrl,
 } from '../constants/apiUrl';
 import {
+  fixVersionDates,
+} from './fixVersionDates';
+import {
   IFetchedVersion,
 } from '../interfaces/IFetchedVersion';
 import {
@@ -24,8 +27,8 @@ import {
 } from '../enums/SearchSymbols';
 
 import nodeFetch from 'node-fetch';
-import { fixVersionDates } from './fixVersionDates';
 
+type Fetch = GlobalFetch['fetch'];
 type Paginated = IPaginatedResponse<IFetchedVersion>;
 type ResponsePromise = Promise<Response>;
 
@@ -95,9 +98,12 @@ export const fetchVersions = (
 
   return new Promise((resolve, reject) => {
     /* Use nodeFetch on the server and the built-in fetch in the browser. */
-    ((isNode() ? nodeFetch : fetch)(fetchArgs[0], fetchArgs[1]) as ResponsePromise).then(({
-      status,
+    (((isNode() ? nodeFetch : fetch) as Fetch)(
+      fetchArgs[0],
+      fetchArgs[1],
+    )).then(({
       json,
+      status,
     }) => {
       if (status >= 200 && status < 300) {
         try {

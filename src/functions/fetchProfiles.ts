@@ -26,6 +26,7 @@ import {
   SearchSymbols,
 } from '../enums/SearchSymbols';
 
+type Fetch = GlobalFetch['fetch'];
 type Paginated = IPaginatedResponse<IFetchedProfile>;
 type ResponsePromise = Promise<Response>;
 
@@ -90,9 +91,11 @@ export const fetchProfiles = (
   ];
 
   return new Promise((resolve, reject) => {
-    let prom;
     /* Use nodeFetch on the server and the built-in fetch in the browser. */
-    ((isNode() ? nodeFetch : fetch)(fetchArgs[0], fetchArgs[1]) as ResponsePromise).then(({
+    (((isNode() ? nodeFetch : fetch) as Fetch)(
+      fetchArgs[0],
+      fetchArgs[1],
+    )).then(({
       json,
       status,
     }) => {

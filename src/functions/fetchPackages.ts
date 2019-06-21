@@ -22,9 +22,13 @@ import {
 import {
   OrderDirections,
 } from '../enums/OrderDirections';
+import {
+  SearchSymbols,
+} from '../enums/SearchSymbols';
 
 import nodeFetch from 'node-fetch';
 
+type Fetch = GlobalFetch['fetch'];
 type Paginated = IPaginatedResponse<IFetchedPackage>;
 type ResponsePromise = Promise<Response>;
 
@@ -48,24 +52,27 @@ type ResponsePromise = Promise<Response>;
  * option is ignored if `nameOrId` is `*`.
  * 
  * @param options.orderBy A set of fields that can be used for ordering the
- * returned packages. This option is ignored if `nameOrId` is not `*`.
+ * returned packages. This option is ignored if `nameOrId` is not
+ * `SearchSymbols.All`.
  * 
  * @param options.orderDirection A direction in which the returned packages
- * are ordered. This option is ignored if `nameOrId` is not `*`.
+ * are ordered. This option is ignored if `nameOrId` is not
+ * `SearchSymbols.All`.
  * 
  * @param options.quantity The number of results to return. There is a server
  * maximum, which has not been canonicalized yet, beyond which a higher
- * quantity is disregarded. This option is ignored if `nameOrId` is not `*`. 
+ * quantity is disregarded. This option is ignored if `nameOrId` is not
+ * `SearchSymbols.All`. 
  */
 export const fetchPackages = (
-  nameOrId: string | number | '*',
+  nameOrId: string | number | SearchSymbols.All,
   options?: IFetchPackageOptions & IFetchOptions,
 ): Promise<IFetchedPackage | Paginated> => {
   /* If format=json is not provided, an HTML response will be emitted by the
    * server. This is not desirable for a Node module API. */
   let args = 'format=json';
   if (options) {
-    if (nameOrId === '*') {
+    if (nameOrId === SearchSymbols.All) {
       if (options.orderBy) {
         if (options.orderDirection === OrderDirections.Descending) {
           args += `&orderBy=${options.orderBy}`;
@@ -86,7 +93,9 @@ export const fetchPackages = (
   }
 
   /* e.g. https://foo.com/packages/coolPackage?...args */
-  const urlStr = `${apiUrl}/packages/${nameOrId === '*' ? '' : nameOrId}?${args}`;
+  const urlStr = `${apiUrl}/packages/` +
+    `${nameOrId === SearchSymbols.All ? '' : nameOrId}?${args}`;
+
   const fetchArgs: [ string, object ] = [
     urlStr,
     {},
@@ -94,7 +103,10 @@ export const fetchPackages = (
 
   return new Promise((resolve, reject) => {
     /* Use nodeFetch on the server and the built-in fetch in the browser. */
-    ((isNode() ? nodeFetch : fetch)(fetchArgs[0], fetchArgs[1]) as ResponsePromise).then(({
+    (((isNode() ? nodeFetch : fetch) as Fetch)(
+      fetchArgs[0],
+      fetchArgs[1],
+    ) as ResponsePromise).then(({
       json,
       status,
     }) => {
@@ -103,7 +115,7 @@ export const fetchPackages = (
           json().then((data: IFetchedPackage | Paginated) => {
             let fixedData: IFetchedPackage | Paginated = {
               ...data,
-              ...(nameOrId === '*' ?
+              ...(nameOrId === SearchSymbols.All ?
                 {
                   results: (data as Paginated).results.map((pkg) => (
                     fixPackageDates(pkg, options)
@@ -113,7 +125,7 @@ export const fetchPackages = (
               ),
             };
 
-            if (nameOrId !== '*') {
+            if (nameOrId !== SearchSymbols.All) {
               fixedData = fixPackageDates(fixedData as IFetchedPackage, options);
             }
 

@@ -10,6 +10,7 @@ import {
 
 import nodeFetch from 'node-fetch';
 
+type Fetch = GlobalFetch['fetch'];
 type ResponsePromise = Promise<Response>;
 
 /**
@@ -36,11 +37,13 @@ export const searchPackages = (query: string, options?: ISearchPackageOptions) =
   ];
 
   return new Promise((resolve, reject) => {
-    ((isNode() ? nodeFetch : fetch)(fetchArgs[0], fetchArgs[1]) as ResponsePromise).then(
-      ({
-        json,
-        status,
-      }) => {
+    (((isNode() ? nodeFetch : fetch) as Fetch)(
+      fetchArgs[0],
+      fetchArgs[1],
+    )).then(({
+      json,
+      status,
+    }) => {
         if (status >= 200 && status < 300) {
           try {
             json().then(resolve);
