@@ -14,8 +14,16 @@ import {
   IPaginatedResponse,
 } from '../interfaces/IPaginatedResponse';
 import {
+  isNode,
+} from './isNode';
+import {
+  fixProfileDates,
+} from './fixProfileDates';
+import {
   OrderDirections,
 } from '../enums/OrderDirections';
+
+type Paginated = IPaginatedResponse<IFetchedProfile>;
 
 import nodeFetch from 'node-fetch';
 
@@ -41,11 +49,11 @@ import nodeFetch from 'node-fetch';
  * @param [options.quantity] The number of results to return. There is a server
  * maximum, which has not been canonicalized yet, beyond which a higher
  * quantity is disregarded. This option is ignored if `id` is not `*`. 
- * */
+ */
 export const fetchProfiles = (
   id: number | '*',
   options?: IFetchProfileOptions & IFetchOptions,
-): Promise<IFetchedProfile | IPaginatedResponse<IFetchedProfile>> => {
+): Promise<IFetchedProfile | Paginated> => {
   /* If format=json is not provided, an HTML response will be emitted by the
    * server. This is not desirable for a Node module API. */
   let args = 'format=json';
@@ -76,47 +84,45 @@ export const fetchProfiles = (
   return new Promise((resolve, reject) => {
     let prom;
     /* Use nodeFetch on the server and the built-in fetch in the browser. */
-    if (process && process.env) {
+    if (isNode()) {
       prom = nodeFetch.apply(null, fetchArgs);
     } else {
       prom = fetch.apply(null, fetchArgs);
     }
 
-    (prom as Promise<Response>).then((response) => {
-      if (response.status.toString()[0] === '2') {
+    (prom as Promise<Response>).then(({
+      json,
+      status,
+    }) => {
+      if (status >= 200 && status < 300) {
         try {
-          response.json().then((data: IFetchedProfile | IPaginatedResponse<IFetchedProfile>) => {
-            if (id === '*') {
-              (data as IPaginatedResponse<IFetchedProfile>).results.forEach((prof) => (
-                fixDates(prof)
-              ));
-            } else {
-              fixDates(data as IFetchedProfile);
+          json().then((data: IFetchedProfile | Paginated) => {
+            let fixedData: IFetchedProfile | Paginated = {
+              ...data,
+              ...(id === '*' ?
+                { results: (data as Paginated).results.map(fixProfileDates) } :
+                {}
+              ),
+            };
+
+            if (id !== '*') {
+              fixedData = fixProfileDates(fixedData as IFetchedProfile);
             }
 
-            resolve(data);
+            return resolve(Object.freeze(fixedData));
           });
-        } catch (e) {
-          reject('There was an unknown error deserializing the response, ' +
-                 'but the request succeeded.');
+        } catch (err) {
+          return reject('There was an unknown error deserializing the ' +
+            'response, but the request succeeded.');
         }
       } else {
         try {
-          response.json().then((data) => reject(data.error));
-        } catch (e) {
-          reject('There was an unknown error. The server returned a status ' +
-                `of ${response.status}`);
+          json().then(({ error }) => reject(error));
+        } catch (err) {
+          return reject('There was an unknown error. The server returned a ' +
+            `status of ${status}.\n${err}`);
         }
       }
-    }, (err) => {
-      reject(err);
-    });
+    }, reject);
   });
-};
-
-const fixDates = (
-  profile: IFetchedProfile,
-): IFetchedProfile => {
-  profile.date_created = new Date(profile.date_created);
-  return profile;
 };

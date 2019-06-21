@@ -5,9 +5,6 @@ import {
   IFetchedPackage,
 } from '../interfaces/IFetchedPackage';
 import {
-  IFetchedVersion,
-} from '../interfaces/IFetchedVersion';
-import {
   IFetchOptions,
 } from '../interfaces/IFetchOptions';
 import {
@@ -17,10 +14,18 @@ import {
   IPaginatedResponse,
 } from '../interfaces/IPaginatedResponse';
 import {
+  fixPackageDates,
+} from './fixPackageDates';
+import {
+  isNode,
+} from './isNode';
+import {
   OrderDirections,
 } from '../enums/OrderDirections';
 
 import nodeFetch from 'node-fetch';
+
+type Paginated = IPaginatedResponse<IFetchedPackage>;
 
 /**
  * @description A function used to abstract fetching one or more profiles from
@@ -50,11 +55,12 @@ import nodeFetch from 'node-fetch';
  * @param [options.quantity] The number of results to return. There is a server
  * maximum, which has not been canonicalized yet, beyond which a higher
  * quantity is disregarded. This option is ignored if `nameOrId` is not `*`. 
- * */
+ */
 export const fetchPackages = (
   nameOrId: string | number | '*',
   options?: IFetchPackageOptions & IFetchOptions,
 ): Promise<IFetchedPackage | IPaginatedResponse<IFetchedPackage>> => {
+
   /* If format=json is not provided, an HTML response will be emitted by the
    * server. This is not desirable for a Node module API. */
   let args = 'format=json';
@@ -90,57 +96,49 @@ export const fetchPackages = (
   return new Promise((resolve, reject) => {
     let prom;
     /* Use nodeFetch on the server and the built-in fetch in the browser. */
-    if (process && process.env) {
+    if (isNode()) {
       prom = nodeFetch.apply(null, fetchArgs);
     } else {
       prom = fetch.apply(null, fetchArgs);
     }
 
-    (prom as Promise<Response>).then((response) => {
-      if (response.status.toString()[0] === '2') {
+    (prom as Promise<Response>).then(({
+      json,
+      status,
+    }) => {
+      if (status >= 200 && status < 300) {
         try {
-          response.json().then((data: IFetchedPackage | IPaginatedResponse<IFetchedPackage>) => {
-            if (nameOrId === '*') {
-              (data as IPaginatedResponse<IFetchedPackage>).results.forEach((pkg) => (
-                fixDates(pkg, options))
-              );
-            } else {
-              fixDates(data as IFetchedPackage, options);
+          json().then((data: IFetchedPackage | Paginated) => {
+            let fixedData: IFetchedPackage | Paginated = {
+              ...data,
+              ...(nameOrId === '*' ?
+                {
+                  results: (data as Paginated).results.map((pkg) => (
+                    fixPackageDates(pkg, options)
+                  )) 
+                } :
+                {}
+              ),
+            };
+
+            if (nameOrId !== '*') {
+              fixedData = fixPackageDates(fixedData as IFetchedPackage, options);
             }
 
-            resolve(data);
+            return resolve(Object.freeze(fixedData));
           });
-        } catch (e) {
-          reject('There was an unknown error deserializing the response, ' +
-                 'but the request succeeded.');
+        } catch (err) {
+          return reject('There was an unknown error deserializing the ' +
+            'response, but the request succeeded.');
         }
       } else {
         try {
-          response.json().then((data) => reject(data.error));
-        } catch (e) {
-          reject('There was an unknown error. The server returned a status ' +
-                `of ${response.status}`);
+          json().then(({ error }) => reject(error));
+        } catch (err) {
+          return reject('There was an unknown error. The server returned a ' +
+            `status of ${status}.\n${err}`);
         }
       }
-    }, (err) => {
-      reject(err);
-    });
+    }, reject);
   });
-};
-
-const fixDates = (
-  pkg: IFetchedPackage,
-  options?: IFetchPackageOptions & IFetchOptions
-): IFetchedPackage =>
-{
-  pkg.date_created = new Date(pkg.date_created);
-  pkg.date_modified = new Date(pkg.date_modified);
-
-  if (options && options.includeVersions) {
-    (pkg.versions as IFetchedVersion[]).forEach((version) => {
-      version.date_created = new Date(version.date_created);
-    });
-  }
-
-  return pkg;
 };

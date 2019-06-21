@@ -14,10 +14,16 @@ import {
   IPaginatedResponse,
 } from '../interfaces/IPaginatedResponse';
 import {
+  isNode,
+} from './isNode';
+import {
   OrderDirections,
 } from '../enums/OrderDirections';
 
 import nodeFetch from 'node-fetch';
+import { fixVersionDates } from './fixVersionDates';
+
+type Paginated = IPaginatedResponse<IFetchedVersion>;
 
 /**
  * @description A function used to abstract fetching one or more versions from
@@ -48,7 +54,7 @@ import nodeFetch from 'node-fetch';
 export const fetchVersions = (
   id: string | number | '*',
   options?: IFetchVersionOptions & IFetchOptions
-): Promise<IFetchedVersion | IPaginatedResponse<IFetchedVersion>> => {
+): Promise<IFetchedVersion | Paginated> => {
   /* If format=json is not provided, an HTML response will be emitted by the
    * server. This is not desirable for a Node module API. */
   let args = 'format=json';
@@ -83,47 +89,45 @@ export const fetchVersions = (
   return new Promise((resolve, reject) => {
     let prom;
     /* Use nodeFetch on the server and the built-in fetch in the browser. */
-    if (process && process.env) {
+    if (isNode()) {
       prom = nodeFetch.apply(null, fetchArgs);
     } else {
       prom = fetch.apply(null, fetchArgs);
     }
 
-    (prom as Promise<Response>).then((response) => {
-      if (response.status.toString()[0] === '2') {
+    (prom as Promise<Response>).then(({
+      status,
+      json,
+    }) => {
+      if (status >= 200 && status < 300) {
         try {
-          response.json().then((data: IFetchedVersion | IPaginatedResponse<IFetchedVersion>) => {
-            if (id === '*') {
-              (data as IPaginatedResponse<IFetchedVersion>).results.forEach((prof) => (
-                fixDates(prof)
-              ));
-            } else {
-              fixDates(data as IFetchedVersion);
+          json().then((data: IFetchedVersion | Paginated) => {
+            let fixedData: IFetchedVersion | Paginated = {
+              ...data,
+              ...(id === '*' ?
+                { results: (data as Paginated).results.map(fixVersionDates) } :
+                {}
+              ),
+            };
+
+            if (id !== '*') {
+              fixedData = fixVersionDates(fixedData as IFetchedVersion);
             }
 
-            resolve(data);
+            return resolve(Object.freeze(fixedData));
           });
         } catch (e) {
-          reject('There was an unknown error deserializing the response, ' +
-                 'but the request succeeded.');
+          return reject('There was an unknown error deserializing the ' +
+            'response, but the request succeeded.');
         }
       } else {
         try {
-          response.json().then((data) => reject(data.error));
-        } catch (e) {
-          reject('There was an unknown error. The server returned a status ' +
-                `of ${response.status}`);
+          json().then(({ error }) => reject(error));
+        } catch (err) {
+          return reject('There was an unknown error. The server returned a status ' +
+                `of ${status}.\n${err}`);
         }
       }
-    }, (err) => {
-      reject(err);
-    });
+    }, reject);
   });
-};
-
-const fixDates = (
-  version: IFetchedVersion,
-): IFetchedVersion => {
-  version.date_created = new Date(version.date_created);
-  return version;
 };

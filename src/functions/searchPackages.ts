@@ -4,6 +4,9 @@ import {
 import {
   ISearchPackageOptions,
 } from '../interfaces/ISearchPackageOptions';
+import {
+  isNode,
+} from './isNode';
 
 import nodeFetch from 'node-fetch';
 
@@ -25,30 +28,31 @@ export const searchPackages = (query: string, options?: ISearchPackageOptions) =
 
   return new Promise((resolve, reject) => {
     let prom;
-    if (process && process.env) {
+    if (isNode()) {
       prom = nodeFetch.apply(null, fetchArgs);
     } else {
       prom = fetch.apply(null, fetchArgs);
     }
 
-    (prom as Promise<Response>).then((response) => {
-      if (response.status === 200) {
-        try {
-          response.json().then((data) => resolve(data));
-        } catch (e) {
-          reject('There was an unknown error deserializing the response, ' +
-                 'but the request succeeded.');
+    (prom as Promise<Response>).then(
+      (response) => {
+        if (response.status >= 200 && response.status < 300) {
+          try {
+            response.json().then(resolve);
+          } catch (e) {
+            return reject('There was an unknown error deserializing the ' +
+              'response, but the request succeeded.');
+          }
+        } else {
+          try {
+            response.json().then(({ error }) => reject(error));
+          } catch (err) {
+            return reject('There was an unknown error. The server returned ' +
+              `a status of ${response.status}.\n${err}`);
+          }
         }
-      } else {
-        try {
-          response.json().then((data) => reject(data.error));
-        } catch (e) {
-          reject('There was an unknown error. The server returned a status ' +
-                `of ${response.status}`);
-        }
-      }
-    }, (err) => {
-      reject(err);
-    });
+      },
+      reject,
+    );
   });
 };
