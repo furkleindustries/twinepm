@@ -1,3 +1,7 @@
-# twinepm-cli
+# twinepm
 
-Readme to come.
+A command-line tool and Node module.
+
+## Introduction
+
+This repository contains 

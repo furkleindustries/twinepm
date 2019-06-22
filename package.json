@@ -3,7 +3,7 @@
   "version": "0.2.0",
   "description": "The module and CLI tools for the Twine Package Manager.",
   "main": "dist/index.js",
-  "bin": "dist/index.js",
+  "bin": "src/cli.js",
   "scripts": {
     "build": "webpack",
     "build:typedocs": "typedoc",
@@ -27,12 +27,13 @@
   },
   "homepage": "https://github.com/furkleindustries/twinepm#readme",
   "dependencies": {
-    "commander": "^2.19.0",
+    "commander": "^2.20.0",
     "node-fetch": "^2.2.1"
   },
   "devDependencies": {
-    "@types/node": "^10.12.6",
+    "@types/node": "^10.14.10",
     "@types/node-fetch": "^2.1.2",
+    "esm": "^3.2.25",
     "ts-loader": "^5.3.0",
     "typedoc": "^0.14.2",
     "typescript": "^3.1.6",
