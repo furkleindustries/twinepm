@@ -3,7 +3,7 @@
   "version": "0.2.0",
   "description": "The module and CLI tools for the Twine Package Manager.",
   "main": "dist/index.js",
-  "bin": "src/cli.js",
+  "bin": "src/cli/index.js",
   "scripts": {
     "build": "webpack",
     "build:typedocs": "typedoc",
