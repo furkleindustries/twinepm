@@ -64,8 +64,16 @@
 	<div class="row">
 		<div class="col-8 col-content">
 			<div class="tsd-panel tsd-typography">
-				<h1 id="twinepm-cli">twinepm-cli</h1>
-				<p>Readme to come.</p>
+				<h1 id="twinepm">twinepm</h1>
+				<p>A command-line tool and Node module.</p>
+				<h2 id="introduction">Introduction</h2>
+				<p>This repository contains the client-side library used to abstract querying the TwinePM registry. It can be used either as a command line tool with <code>src/cli/index.js</code>, or as a module to be required or imported in other codebases.</p>
+				<h2 id="installation">Installation</h2>
+				<p><code>npm install -S twinepm</code></p>
+				<h2 id="what-s-here">What&#39;s here</h2>
+				<p>Functions for every basic query use case. Check the <a href="docs/typescript/index.html">typedocs</a> for more details.</p>
+				<h2 id="what-s-not-here">What&#39;s not here</h2>
+				<p>There is currently no privileged execution (any command involving login or ownership) possible with this package and no intention to add this functionality. Adding and editing packages will be done on the web client for the foreseeable future.</p>
 			</div>
 		</div>
 		<div class="col-4 col-menu menu-sticky-wrap menu-highlight">
@@ -80,6 +88,9 @@
 				<ul class="before-current">
 					<li class=" tsd-kind-enum">
 						<a href="enums/datestyles.html" class="tsd-kind-icon">Date<wbr>Styles</a>
+					</li>
+					<li class=" tsd-kind-enum">
+						<a href="enums/fetchtypes.html" class="tsd-kind-icon">Fetch<wbr>Types</a>
 					</li>
 					<li class=" tsd-kind-enum">
 						<a href="enums/orderdirections.html" class="tsd-kind-icon">Order<wbr>Directions</a>
@@ -135,8 +146,17 @@
 					<li class=" tsd-kind-type-alias tsd-is-not-exported">
 						<a href="globals.html#responsepromise" class="tsd-kind-icon">Response<wbr>Promise</a>
 					</li>
+					<li class=" tsd-kind-variable tsd-is-external tsd-is-not-exported">
+						<a href="globals.html#eventemitter" class="tsd-kind-icon">Event<wbr>Emitter</a>
+					</li>
+					<li class=" tsd-kind-variable tsd-is-not-exported">
+						<a href="globals.html#__extends" class="tsd-kind-icon">__extends</a>
+					</li>
 					<li class=" tsd-kind-variable">
 						<a href="globals.html#apiurl" class="tsd-kind-icon">api<wbr>Url</a>
+					</li>
+					<li class=" tsd-kind-variable tsd-is-external tsd-is-not-exported">
+						<a href="globals.html#basename" class="tsd-kind-icon">basename</a>
 					</li>
 					<li class=" tsd-kind-variable tsd-is-not-exported">
 						<a href="globals.html#browserconfig" class="tsd-kind-icon">browser<wbr>Config</a>
@@ -144,14 +164,38 @@
 					<li class=" tsd-kind-variable tsd-is-not-exported">
 						<a href="globals.html#cliconfig" class="tsd-kind-icon">cli<wbr>Config</a>
 					</li>
+					<li class=" tsd-kind-variable tsd-is-external tsd-is-not-exported">
+						<a href="globals.html#dirname" class="tsd-kind-icon">dirname</a>
+					</li>
+					<li class=" tsd-kind-variable tsd-is-external tsd-is-not-exported">
+						<a href="globals.html#fs" class="tsd-kind-icon">fs</a>
+					</li>
 					<li class=" tsd-kind-variable tsd-is-not-exported">
 						<a href="globals.html#nodeconfig" class="tsd-kind-icon">node<wbr>Config</a>
 					</li>
 					<li class=" tsd-kind-variable tsd-is-not-exported">
 						<a href="globals.html#path" class="tsd-kind-icon">path</a>
 					</li>
+					<li class=" tsd-kind-variable tsd-is-external tsd-is-not-exported">
+						<a href="globals.html#spawn" class="tsd-kind-icon">spawn</a>
+					</li>
+					<li class=" tsd-kind-variable tsd-is-not-exported">
+						<a href="globals.html#typedoc" class="tsd-kind-icon">typedoc</a>
+					</li>
 					<li class=" tsd-kind-variable tsd-is-not-exported">
 						<a href="globals.html#webpack" class="tsd-kind-icon">webpack</a>
+					</li>
+					<li class=" tsd-kind-function tsd-is-external tsd-is-not-exported">
+						<a href="globals.html#command" class="tsd-kind-icon">Command</a>
+					</li>
+					<li class=" tsd-kind-function tsd-is-external tsd-is-not-exported">
+						<a href="globals.html#option" class="tsd-kind-icon">Option</a>
+					</li>
+					<li class=" tsd-kind-function tsd-is-external tsd-is-not-exported">
+						<a href="globals.html#camelcase" class="tsd-kind-icon">camelcase</a>
+					</li>
+					<li class=" tsd-kind-function tsd-is-external tsd-is-not-exported">
+						<a href="globals.html#exists" class="tsd-kind-icon">exists</a>
 					</li>
 					<li class=" tsd-kind-function">
 						<a href="globals.html#fetchpackages" class="tsd-kind-icon">fetch<wbr>Packages</a>
@@ -171,8 +215,17 @@
 					<li class=" tsd-kind-function">
 						<a href="globals.html#fixversiondates" class="tsd-kind-icon">fix<wbr>Version<wbr>Dates</a>
 					</li>
+					<li class=" tsd-kind-function tsd-is-external tsd-is-not-exported">
+						<a href="globals.html#humanreadableargname" class="tsd-kind-icon">human<wbr>Readable<wbr>Arg<wbr>Name</a>
+					</li>
 					<li class=" tsd-kind-function">
 						<a href="globals.html#isnode" class="tsd-kind-icon">is<wbr>Node</a>
+					</li>
+					<li class=" tsd-kind-function tsd-is-external tsd-is-not-exported">
+						<a href="globals.html#outputhelpifnecessary" class="tsd-kind-icon">output<wbr>Help<wbr>IfNecessary</a>
+					</li>
+					<li class=" tsd-kind-function tsd-is-external tsd-is-not-exported">
+						<a href="globals.html#pad" class="tsd-kind-icon">pad</a>
 					</li>
 					<li class=" tsd-kind-function">
 						<a href="globals.html#searchpackages" class="tsd-kind-icon">search<wbr>Packages</a>
