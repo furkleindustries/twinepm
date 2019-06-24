@@ -12,7 +12,7 @@ This repository contains the client-side library used to abstract querying the T
 
 ## What's here
 
-Functions for every basic query use case. Check the [typedocs](docs/typescript/index.html) for more details.
+Functions for every basic query use case. Check the [typedocs](docs/typescript/index.html) for more details. You will need to clone the repo to get much value out of them.
 
 ## What's not here
 

@@ -1,5 +1,6 @@
 export * from './constants/apiUrl';
 export * from './enums/DateStyles';
+export * from './enums/FetchTypes';
 export * from './enums/OrderDirections';
 export * from './enums/PackageOrderByFields';
 export * from './enums/ProfileOrderByFields';
