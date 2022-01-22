@@ -32,7 +32,7 @@
   "dependencies": {
     "@types/semver": "^6.0.1",
     "commander": "^2.20.0",
-    "node-fetch": "^2.2.1",
+    "node-fetch": "^3.1.1",
     "semver": "^6.1.1"
   },
   "devDependencies": {
